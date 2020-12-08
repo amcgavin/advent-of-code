@@ -54,6 +54,8 @@ class Node:
 
 
 def switch(cmd, value):
+    if cmd == "acc":
+        return "acc", value
     if cmd == "nop":
         return "jmp", value
     return "nop", value
@@ -108,6 +110,16 @@ def part2():
         program[e.answer] = switch(*program[e.answer])
 
     return execute(program)
+
+
+def part2_naive():
+    # won't work as you increase the allowed number of switches
+    program = [parse(line) for line in get_input()]
+    for i in range(len(program) * 2):
+        try:
+            return execute(program, exit_on_loop=False)
+        except ValueError:
+            program[i // 2] = switch(*program[i // 2])
 
 
 if __name__ == "__main__":
