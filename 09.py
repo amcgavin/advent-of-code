@@ -20,13 +20,15 @@ def part2():
     target = part1()
     numbers = [int(line) for line in get_input()]
     start = end = 0
+    total = 0
     while end < len(numbers):
-        ans = sum(numbers[start:end])
-        if ans == target:
+        if total == target:
             return min(numbers[start:end]) + max(numbers[start:end])
-        if ans < target:
+        elif total < target:
+            total += numbers[end]
             end += 1
-        if ans > target:
+        elif total > target:
+            total -= numbers[start]
             start += 1
 
 
