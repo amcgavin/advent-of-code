@@ -1,4 +1,4 @@
-Submissions for Advent of Code 2020
+Submissions for Advent of Code
 ------------------------------
 
-Solutions are in python.
+Solutions are (mostly) in python.
