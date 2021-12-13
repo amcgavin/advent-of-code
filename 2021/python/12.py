@@ -12,58 +12,42 @@ class Node:
     def __eq__(self, other):
         return self.identifier == other.identifier
 
-    @property
-    def look_back(self):
-        return self.identifier.upper() == self.identifier
-
     def __repr__(self):
         return self.identifier
 
 
-def visit_1(node, path):
+def parse_nodes(data):
+    nodes = {}
+    for line in data:
+        start, end = line.split("-")
+        start = nodes.setdefault(start, Node(start))
+        end = nodes.setdefault(end, Node(end))
+        start.links.add(end)
+        end.links.add(start)
+    return nodes
+
+
+def explore(node, path, can_double=False):
     new_path = f"{path}-{node}"
     if node.identifier == "end":
         yield new_path
     for option in node.links:
-        if option.look_back or str(option) not in new_path:
-            yield from visit_1(option, new_path)
-
-
-def visit_2(node, path, can_double=True):
-    new_path = f"{path}-{node}"
-    if node.identifier == "end":
-        yield new_path
-    for option in node.links:
-        if option.look_back:
-            yield from visit_2(option, new_path, can_double=can_double)
+        if option.identifier.isupper():
+            yield from explore(option, new_path, can_double=can_double)
         elif str(option) not in new_path:
-            yield from visit_2(option, new_path, can_double=can_double)
+            yield from explore(option, new_path, can_double=can_double)
         elif str(option) not in ("start", "end") and can_double:
-            yield from visit_2(option, new_path, can_double=False)
+            yield from explore(option, new_path, can_double=False)
 
 
 def part_1(data):
-    nodes = {}
-    for line in data:
-        start, end = line.split("-")
-        start = nodes.setdefault(start, Node(start))
-        end = nodes.setdefault(end, Node(end))
-        start.links.add(end)
-        end.links.add(start)
-
-    return len(list(visit_1(nodes["start"], "")))
+    nodes = parse_nodes(data)
+    return len(list(explore(nodes["start"], "", can_double=False)))
 
 
 def part_2(data):
-    nodes = {}
-    for line in data:
-        start, end = line.split("-")
-        start = nodes.setdefault(start, Node(start))
-        end = nodes.setdefault(end, Node(end))
-        start.links.add(end)
-        end.links.add(start)
-
-    return len(list(visit_2(nodes["start"], "", can_double=True)))
+    nodes = parse_nodes(data)
+    return len(list(explore(nodes["start"], "", can_double=True)))
 
 
 def main():
