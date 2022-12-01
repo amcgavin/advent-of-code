@@ -1,28 +1,40 @@
+exclude: ".*snap$"
 repos:
-    - repo: git://github.com/pre-commit/pre-commit-hooks
+    - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v2.4.0
       hooks:
           - id: trailing-whitespace
             exclude_types: [pem]
           - id: check-merge-conflict
           - id: debug-statements
-    - repo: https://gitlab.com/pycqa/flake8
-      rev: 3.8.4
+    - repo: https://github.com/antonbabenko/pre-commit-terraform
+      rev: v1.76.0
+      hooks:
+        - id: terraform_fmt
+        - id: terraform_validate
+    - repo: https://github.com/pycqa/flake8
+      rev: 3.9.2
       hooks:
         - id: flake8
           additional_dependencies: [
-                  "flake8-comprehensions",
-                  "flake8-pep3101",
-                  "flake8-bugbear",
-                  "flake8-debugger",
-                  "flake8-tidy-imports"
+            "flake8-comprehensions",
+            "flake8-pep3101",
+            "flake8-bugbear",
+            "flake8-debugger",
+            "flake8-tidy-imports"
           ]
-    - repo: https://github.com/pre-commit/mirrors-isort
-      rev: v4.3.21
+    - repo: https://github.com/asottile/pyupgrade
+      rev: v2.37.3
       hooks:
-          - id: isort
-    - repo: https://github.com/ambv/black
-      rev: 19.10b0
+        - id: pyupgrade
+          args: [ --py38-plus ]
+    - repo: https://github.com/pycqa/isort
+      rev: 5.10.1
       hooks:
-          - id: black
-            args: [--line-length=100, --safe]
+        - id: isort
+          name: isort (python)
+    - repo: https://github.com/psf/black
+      rev: 22.10.0
+      hooks:
+        - id: black
+          args: [ --line-length=100, --safe ]
