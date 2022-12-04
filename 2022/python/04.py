@@ -6,21 +6,17 @@ expr = re.compile(r"(\d+)-(\d+),(\d+)-(\d+)")
 
 
 def part_1(data):
-    count = 0
-    for row in data:
-        l1, l2, r1, r2 = (int(x) for x in expr.match(row).groups())
-        if (l1 <= r1 and l2 >= r2) or (r1 <= l1 and r2 >= l2):
-            count += 1
-    return count
+    return sum(
+        (l1 <= r1 and l2 >= r2) or (r1 <= l1 and r2 >= l2)
+        for l1, l2, r1, r2 in ([int(x) for x in expr.match(row).groups()] for row in data)
+    )
 
 
 def part_2(data):
-    count = 0
-    for row in data:
-        l1, l2, r1, r2 = (int(x) for x in expr.match(row).groups())
-        if r1 <= l2 and l1 <= r2:
-            count += 1
-    return count
+    return sum(
+        r1 <= l2 and l1 <= r2
+        for l1, l2, r1, r2 in ([int(x) for x in expr.match(row).groups()] for row in data)
+    )
 
 
 def main():
