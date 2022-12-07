@@ -1,5 +1,4 @@
 import re
-from collections import defaultdict
 
 import aocd
 
@@ -13,9 +12,12 @@ def get_sizes(data):
     directories = {"": 0}
     for line in data:
         if ls_cmd.match(line):
-            directories[current_dir] = 0
+            if current_dir not in directories:
+                directories[current_dir] = 0
         if m := filesize.match(line):
-            directories[current_dir] += int(m.groups()[0])
+            paths = current_dir.split("/")
+            for i in range(len(paths)):
+                directories["/".join(paths[: i + 1])] += int(m.groups()[0])
         if m := cd_cmd.match(line):
             directory = m.groups()[0]
             if directory == "..":
@@ -24,12 +26,8 @@ def get_sizes(data):
                 current_dir = ""
             else:
                 current_dir = f"{current_dir}/{directory}"
-    sizes = defaultdict(lambda: 0)
-    for directory, size in directories.items():
-        paths = directory.split("/")
-        for i in range(len(paths)):
-            sizes["/".join(paths[: i + 1])] += size
-    return sizes
+
+    return directories
 
 
 def part_1(data):
