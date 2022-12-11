@@ -1,30 +1,24 @@
-import re
-
 import aocd
-
-cd_cmd = re.compile(r"\$ cd (.+)")
-ls_cmd = re.compile(r"\$ ls")
-filesize = re.compile(r"(\d+) .*")
+from match import RegexMatch
 
 
 def get_sizes(data):
     current_dir = ""
     directories = {"": 0}
     for line in data:
-        if ls_cmd.match(line):
-            if current_dir not in directories:
-                directories[current_dir] = 0
-        if m := filesize.match(line):
-            paths = current_dir.split("/")
-            for i in range(len(paths)):
-                directories["/".join(paths[: i + 1])] += int(m.groups()[0])
-        if m := cd_cmd.match(line):
-            directory = m.groups()[0]
-            if directory == "..":
+        match RegexMatch(line):
+            case RegexMatch(r"\$ ls"):
+                if current_dir not in directories:
+                    directories[current_dir] = 0
+            case RegexMatch(r"(\d+) .*", [size]):
+                paths = current_dir.split("/")
+                for i in range(len(paths)):
+                    directories["/".join(paths[: i + 1])] += int(size)
+            case RegexMatch(r"\$ cd \.\."):
                 current_dir = current_dir.rsplit("/", 1)[0]
-            elif directory == "/":
+            case RegexMatch(r"\$ cd /"):
                 current_dir = ""
-            else:
+            case RegexMatch(r"\$ cd (.+)", [directory]):
                 current_dir = f"{current_dir}/{directory}"
 
     return directories
