@@ -25,10 +25,10 @@ def parse_monkeys(data):
                 monkey["operator"] = lambda x: x * x
             case RegexMatch(r"  Test: divisible by (\w+)", [num]):
                 monkey["test"] = int(num)
-            case RegexMatch(r"    If true: throw to monkey (\d)", [monkey]):
-                monkey["true"] = monkey
-            case RegexMatch(r"    If false: throw to monkey (\d)", [monkey]):
-                monkey["false"] = monkey
+            case RegexMatch(r"    If true: throw to monkey (\d)", [name]):
+                monkey[True] = name
+            case RegexMatch(r"    If false: throw to monkey (\d)", [name]):
+                monkey[False] = name
     return monkeys
 
 
@@ -40,10 +40,8 @@ def part_1(data):
             counts[name] += len(monkey["items"])
             for old in monkey["items"]:
                 new = monkey["operator"](old) // 3
-                if new % monkey["test"] == 0:
-                    monkeys[monkey["true"]]["items"].append(new)
-                else:
-                    monkeys[monkey["false"]]["items"].append(new)
+                monkeys[monkey[new % monkey["test"] == 0]]["items"].append(new)
+
             monkey["items"] = []
 
     return operator.mul(*sorted(counts.values())[-2:])
@@ -58,10 +56,8 @@ def part_2(data):
             counts[name] += len(monkey["items"])
             for old in monkey["items"]:
                 new = monkey["operator"](old) % mod
-                if new % monkey["test"] == 0:
-                    monkeys[monkey["true"]]["items"].append(new)
-                else:
-                    monkeys[monkey["false"]]["items"].append(new)
+                monkeys[monkey[new % monkey["test"] == 0]]["items"].append(new)
+
             monkey["items"] = []
 
     return operator.mul(*sorted(counts.values())[-2:])
