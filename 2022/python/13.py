@@ -1,5 +1,6 @@
 import functools
 import itertools
+import json
 
 import aocd
 
@@ -10,75 +11,42 @@ def coerce(v):
     return [v]
 
 
-class InOrder(Exception):
-    pass
-
-
-class NotInOrder(Exception):
-    pass
-
-
-def recurse(p1, p2, step=1):
+def recurse(p1, p2):
     for left, right in itertools.zip_longest(p1, p2, fillvalue=None):
         if left is None:
-            raise InOrder()
+            raise StopIteration(True)
         if right is None:
-            raise NotInOrder()
+            raise StopIteration(False)
         if isinstance(left, list) or isinstance(right, list):
-            recurse(coerce(left), coerce(right), step)
+            recurse(coerce(left), coerce(right))
             continue
         if left < right:
-            raise InOrder()
+            raise StopIteration(True)
         if left > right:
-            raise NotInOrder()
+            raise StopIteration(False)
 
 
 def cmp(d1, d2):
     try:
         recurse(d1, d2)
         return -1
-    except InOrder:
-        return -1
-    except NotInOrder:
-        return 1
+    except StopIteration as e:
+        return -1 if e.value else 1
 
 
 def part_1(data):
-    pairs = []
-    current = []
-    for line in data:
-        if line == "":
-            pairs.append(current)
-            current = []
-        else:
-            current.append(eval(line))
-    pairs.append(current)
-
-    total = 0
-    totals = []
-    for i, (d1, d2) in enumerate(pairs, 1):
-        try:
-            recurse(d1, d2, step=i)
-            totals.append(i)
-            total += i
-        except InOrder:
-            totals.append(i)
-            total += i
-        except NotInOrder:
-            pass
-
-    return total
+    return sum(
+        i
+        for i, pair in enumerate(zip(*([(json.loads(line) for line in data if line)] * 2)), 1)
+        if cmp(*pair) < 0
+    )
 
 
 def part_2(data):
-    pairs = [[2], [6]]
-    for line in data:
-        if line == "":
-            continue
-        pairs.append(eval(line))
-
-    pairs = sorted(pairs, key=functools.cmp_to_key(cmp))
-    return (pairs.index([2]) + 1) * (pairs.index([6]) + 1)
+    items = [[], [2], [6]]
+    items.extend(json.loads(line) for line in data if line)
+    items = sorted(items, key=functools.cmp_to_key(cmp))
+    return items.index([2]) * items.index([6])
 
 
 def main():
