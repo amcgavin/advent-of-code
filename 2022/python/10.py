@@ -34,9 +34,9 @@ def part_2(data):
     def add_cycle():
         nonlocal cycle
         if cycle in {x - 1, x, x + 1}:
-            sys.stdout.write("#")
+            sys.stdout.write("▓▓▓")
         else:
-            sys.stdout.write(".")
+            sys.stdout.write("   ")
         cycle += 1
         if cycle == 40:
             cycle = 0
