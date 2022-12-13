@@ -43,9 +43,9 @@ def part_1(data):
 
 
 def part_2(data):
-    items = [[], [2], [6]]
-    items.extend(json.loads(line) for line in data if line)
-    items = sorted(items, key=functools.cmp_to_key(cmp))
+    items = sorted(
+        [[], [2], [6], *[json.loads(line) for line in data if line]], key=functools.cmp_to_key(cmp)
+    )
     return items.index([2]) * items.index([6])
 
 
