@@ -57,7 +57,38 @@ def part_1(data):
 
 
 def part_2(data):
-    return 0
+    height = 0
+    deltas = []
+    jets = repeats(data)
+    tiles = set()
+
+    for r in itertools.count():
+        rock = rock_patterns[r % len(rock_patterns)]
+        x, y = 2, 3 + height
+        for i in itertools.count():
+            if i % 2 == 0:
+                (dx, dy) = next(jets)
+                if not collides(rock, (x + dx, y + dy), tiles):
+                    x += dx
+                    y += dy
+            else:
+                if not collides(rock, (x, y - 1), tiles):
+                    y -= 1
+                else:
+                    break
+        tiles.update(((a + x, b + y) for a, b in rock))
+
+        # 1695 - length of cycle
+        # 2022 - no significance
+        if len(deltas) > 5000 and deltas[-1695:] == deltas[2022 : 2022 + 1695]:
+            main_deltas = deltas[-1695:]
+            iterations = (1000000000000 - r) // 1695
+            remainder = (1000000000000 - r) % 1695
+            return height + sum(main_deltas) * iterations + sum(main_deltas[:remainder])
+
+        delta = max(height, max(y + b + 1 for a, b in rock)) - height
+        height += delta
+        deltas.append(delta)
 
 
 def main():
