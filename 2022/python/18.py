@@ -36,6 +36,30 @@ def get_visible(cubes, limit):
     return accessible
 
 
+def draw(cubes, showing):
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from matplotlib.animation import FuncAnimation
+
+    ax = plt.figure().add_subplot(projection="3d")
+    bounding_box = max(itertools.chain.from_iterable(cubes))
+    grid = np.zeros((bounding_box + 1, bounding_box + 1, bounding_box + 1), dtype="i,i,i")
+    colours = np.zeros((bounding_box + 1, bounding_box + 1, bounding_box + 1), dtype="object")
+    for cube in cubes:
+        grid[cube] = True
+        colours[cube] = "#740cac00" if cube in showing else "#f1de3280"
+
+    ax.voxels(grid, facecolors=colours, edgecolors=(0, 0, 0, 0.5))
+    plt.axis("off")
+
+    def animate(i):
+        angle = i % 360
+        ax.view_init(angle, angle)
+
+    ani = FuncAnimation(plt.gcf(), animate, frames=360, interval=1)
+    ani.save("./day18.gif", writer="imagemagick", fps=60)
+
+
 def part_1(data):
     answer = 0
     cubes = set()
@@ -64,6 +88,7 @@ def part_2(data):
             if new not in cubes and new in visible:
                 answer += 1
 
+    # draw(cubes, visible)
     return answer
 
 
