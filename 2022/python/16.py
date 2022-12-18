@@ -57,54 +57,16 @@ def part_1(data):
         valves[name] = Valve(name, flow, set(links.split(", ")))
 
     weights = {valve: dijkstra_algorithm(valves, valve) for valve in valves.values()}
+    return compute_best(weights, valves, 30, [v for v in valves.values() if v.flow])
 
+
+def compute_best(weights, valves, time, group):
     best_order = [valves["AA"]]
-    base_timer = 30
+    base_timer = time
     answer = 0
-
-    while True:
-        sorted_valves = sorted(
-            (v for v in valves.values() if v.flow and v not in best_order), reverse=True
-        )
-        if not sorted_valves:
-            break
-        overall_best = None
-        while sorted_valves:
-            best = None
-            for order in itertools.permutations(sorted_valves[:8]):
-                timer = base_timer
-                start = best_order[-1]
-                flow = 0
-                for target in order:
-                    timer -= weights[start][target]
-                    timer -= 1
-                    flow += max(0, timer) * target.flow
-                    start = target
-                if best is None or (flow, order) > best:
-                    best = (flow, order)
-
-            if overall_best is None or best > overall_best:
-                overall_best = best
-
-            sorted_valves.remove(best[1][-1])
-
-        top = overall_best[1][0]
-        base_timer -= weights[best_order[-1]][top]
-        base_timer -= 1
-        answer += max(0, base_timer) * top.flow
-        best_order.append(top)
-
-    return answer
-
-
-def compute_best(weights, valves, group):
-    best_order = [valves["AA"]]
-    base_timer = 26
-    answer = 0
-    while True:
-        sorted_valves = sorted((v for v in group if v.flow and v not in best_order), reverse=True)
-        if not sorted_valves:
-            break
+    while sorted_valves := sorted(
+        (v for v in group if v.flow and v not in best_order), reverse=True
+    ):
         overall_best = None
         while sorted_valves:
             best = None
@@ -168,7 +130,7 @@ def part_2(data):
                 continue
             seen.update(tasks)
             problems.extend([group, other])
-        answers = iter(p.map(functools.partial(compute_best, weights, valves), problems))
+        answers = iter(p.map(functools.partial(compute_best, weights, valves, 26), problems))
         for me, elephant in zip(answers, answers):
             best_answer = max(best_answer, me + elephant)
     return best_answer
