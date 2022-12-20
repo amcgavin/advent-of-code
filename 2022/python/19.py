@@ -1,3 +1,4 @@
+import multiprocessing
 from collections import Counter, deque
 
 import aocd
@@ -59,6 +60,27 @@ def maximum_geodes(time, robots, inventory):
     return future_geodes(time, robots, inventory) + (23 - time) * (22 - time) // 2
 
 
+def calculate(args):
+    bpid, bp = args
+    # t=0, robots=[ore], inventory=0
+    start_state = (0, (0,), (0, 0, 0, 0))
+    queue = deque([start_state])
+    max_geodes = 0
+    seen = {start_state}
+
+    while queue:
+        for next_state in calculate_best(*queue.popleft(), bp):
+            if next_state in seen:
+                continue
+            if maximum_geodes(*next_state) < max_geodes:
+                continue
+            queue.append(next_state)
+            seen.add(next_state)
+            max_geodes = max(max_geodes, future_geodes(*next_state), next_state[2][3])
+    print(f"{bpid=} {max_geodes=}")
+    return bpid * max_geodes
+
+
 def part_1(data):
     bp1 = [(4, 0, 0, 0), (2, 0, 0, 0), (3, 14, 0, 0), (2, 0, 7, 0)]
     bp2 = [(2, 0, 0, 0), (3, 0, 0, 0), (3, 8, 0, 0), (3, 0, 12, 0)]
@@ -81,26 +103,8 @@ def part_1(data):
             )
         )
 
-    answer = 0
-    for bpid, bp in bps:
-        # t=0, robots=[ore], inventory=0
-        start_state = (0, (0,), (0, 0, 0, 0))
-        queue = deque([start_state])
-        max_geodes = 0
-        seen = {start_state}
-
-        while queue:
-            for next_state in calculate_best(*queue.popleft(), bp):
-                if next_state in seen:
-                    continue
-                if maximum_geodes(*next_state) < max_geodes:
-                    continue
-                queue.append(next_state)
-                seen.add(next_state)
-                max_geodes = max(max_geodes, future_geodes(*next_state), next_state[2][3])
-        answer += bpid * max_geodes
-        print(f"{bpid=} {max_geodes=}")
-    return answer
+    p = multiprocessing.Pool(10)
+    return sum(p.map(calculate, bps))
 
 
 def part_2(data):
