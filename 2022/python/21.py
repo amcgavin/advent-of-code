@@ -1,58 +1,44 @@
+import dataclasses
+import functools
+import operator
+import typing
+
 import aocd
 
 
-class Special:
-    def __init__(self):
-        self.ops = []
+@dataclasses.dataclass
+class Human:
+    operations: tuple[typing.Callable[[int], int], ...] = tuple()
 
     def __add__(self, other):
-        self.ops.append(("+", other))
-        return self
+        return Human((lambda x: x - other, *self.operations))
 
     def __radd__(self, other):
         return self.__add__(other)
 
     def __sub__(self, other):
-        self.ops.append(("-", other))
-        return self
+        return Human((lambda x: x + other, *self.operations))
 
     def __rsub__(self, other):
-        self.ops.append(("--", other))
-        return self
+        return Human((lambda x: other - x, *self.operations))
 
     def __mul__(self, other):
-        self.ops.append(("*", other))
-        return self
+        return Human((lambda x: x / other, *self.operations))
 
     def __rmul__(self, other):
         return self.__mul__(other)
 
     def __truediv__(self, other):
-        self.ops.append(("/", other))
-        return self
+        return Human((lambda x: x * other, *self.operations))
 
     def __rtruediv__(self, other):
-        self.ops.append(("//", other))
-        return self
+        return Human((lambda x: other / x, *self.operations))
 
     def __eq__(self, other):
-        ans = other
-        for op, val in reversed(self.ops):
-            match op:
-                case "+":
-                    ans = ans - val
-                case "-":
-                    ans += val
-                case "--":
-                    ans = val - ans
-                case "*":
-                    ans = ans / val
-                case "/":
-                    ans = val * ans
-                case "//":
-                    ans = val * 1 / ans
+        return functools.reduce(lambda x, f: f(x), self.operations, other)
 
-        return ans
+
+operators = {"+": operator.add, "-": operator.sub, "/": operator.truediv, "*": operator.mul}
 
 
 def part_1(data):
@@ -62,18 +48,9 @@ def part_1(data):
             if line[:4] in known:
                 continue
             match line.replace(":", "").split(" "):
-                case [monkey, lhs, "+", rhs]:
+                case [monkey, lhs, op, rhs]:
                     if lhs in known and rhs in known:
-                        known[monkey] = known[lhs] + known[rhs]
-                case [monkey, lhs, "-", rhs]:
-                    if lhs in known and rhs in known:
-                        known[monkey] = known[lhs] - known[rhs]
-                case [monkey, lhs, "/", rhs]:
-                    if lhs in known and rhs in known:
-                        known[monkey] = known[lhs] / known[rhs]
-                case [monkey, lhs, "*", rhs]:
-                    if lhs in known and rhs in known:
-                        known[monkey] = known[lhs] * known[rhs]
+                        known[monkey] = operators[op](known[lhs], known[rhs])
                 case [monkey, value]:
                     known[monkey] = int(value)
     return int(known["root"])
@@ -87,23 +64,13 @@ def part_2(data):
                 continue
             match line.replace(":", "").split(" "):
                 case ["humn", *_]:
-                    known["humn"] = Special()
+                    known["humn"] = Human()
                 case ["root", lhs, _, rhs]:
                     if lhs in known and rhs in known:
                         known["root"] = known[lhs] == known[rhs]
-                case [monkey, lhs, "+", rhs]:
+                case [monkey, lhs, op, rhs]:
                     if lhs in known and rhs in known:
-                        known[monkey] = known[lhs] + known[rhs]
-                case [monkey, lhs, "-", rhs]:
-                    if lhs in known and rhs in known:
-                        known[monkey] = known[lhs] - known[rhs]
-                case [monkey, lhs, "/", rhs]:
-                    if lhs in known and rhs in known:
-                        known[monkey] = known[lhs] / known[rhs]
-                case [monkey, lhs, "*", rhs]:
-                    if lhs in known and rhs in known:
-                        known[monkey] = known[lhs] * known[rhs]
-
+                        known[monkey] = operators[op](known[lhs], known[rhs])
                 case [monkey, value]:
                     known[monkey] = int(value)
     return int(known["root"])
