@@ -1,5 +1,8 @@
+import functools
+import math
 import multiprocessing
-from collections import Counter, deque
+import operator
+from collections import Counter
 
 import aocd
 from parse import parse
@@ -10,13 +13,18 @@ def types():
     yield from range(4)
 
 
-def calculate_best(time, robots, inventory, bp):
-    if time > 24:
+@functools.lru_cache(maxsize=None)
+def calculate_best(time, robots, inventory, bp, maximum_timer):
+    if time > maximum_timer:
         return
     n_robots = Counter(robots)
-    new_inventory = tuple(inventory[robot] + n_robots.get(robot, 0) for robot in types())
+
     for robot in types():
+        if time == 4 and robot == 0:
+            assert True
         if not all(resource in n_robots for resource, cost in zip(types(), bp[robot]) if cost > 0):
+            continue
+        if robot != 3 and max(bp[resource][robot] for resource in types()) <= n_robots[robot]:
             continue
 
         if not all(inventory[resource] >= cost for resource, cost in zip(types(), bp[robot])):
@@ -26,15 +34,13 @@ def calculate_best(time, robots, inventory, bp):
                 if inventory[resource] < cost:
                     max_time = max(
                         max_time,
-                        1
-                        + (cost - inventory[resource] + n_robots[resource] - 1)
-                        // n_robots[resource],
+                        1 + math.ceil((cost - inventory[resource]) / n_robots[resource]),
                     )
-            if max_time + time > 24:
+            if max_time + time > maximum_timer:
                 continue
             yield (
                 time + max_time,
-                tuple([*robots, robot]),
+                (*robots, robot),
                 tuple(
                     inventory[resource] + max_time * n_robots.get(resource, 0) - bp[robot][resource]
                     for resource in types()
@@ -42,73 +48,95 @@ def calculate_best(time, robots, inventory, bp):
             )
             continue
 
-        yield (
-            time + 1,
-            tuple([*robots, robot]),
-            tuple(new_inventory[resource] - cost for resource, cost in zip(types(), bp[robot])),
-        )
-    # yield (
-    #    time + 1, robots, new_inventory
-    # )
+        if time < maximum_timer:
+            yield (
+                time + 1,
+                (*robots, robot),
+                tuple(
+                    inventory[resource] - cost + n_robots.get(resource, 0)
+                    for resource, cost in zip(types(), bp[robot])
+                ),
+            )
 
 
-def future_geodes(time, robots, inventory):
-    return inventory[3] + (23 - time) * sum(1 for r in robots if r == 3)
+def future_geodes(time, robots, inventory, maximum_timer):
+    if 3 not in robots:
+        return 0
+    return inventory[3] + (maximum_timer + 1 - time) * sum(1 for r in robots if r == 3)
 
 
-def maximum_geodes(time, robots, inventory):
-    return future_geodes(time, robots, inventory) + (23 - time) * (22 - time) // 2
+def theoretical_max(time, robots, inventory, maximum_timer):
+    # can build a robot every minute
+    # assume that we can build a geode every minute from now
+    return future_geodes(time, robots, inventory, maximum_timer) + sum(range(maximum_timer - time))
 
 
-def calculate(args):
+def calculate(maximum_timer, args):
     bpid, bp = args
     # t=0, robots=[ore], inventory=0
-    start_state = (0, (0,), (0, 0, 0, 0))
-    queue = deque([start_state])
+    start_state = (1, (0,), (0, 0, 0, 0))
+    queue = [start_state]
     max_geodes = 0
-    seen = {start_state}
 
     while queue:
-        for next_state in calculate_best(*queue.popleft(), bp):
-            if next_state in seen:
-                continue
-            if maximum_geodes(*next_state) < max_geodes:
+        current_state = queue.pop(0)
+        for next_state in calculate_best(*current_state, bp, maximum_timer):
+
+            if theoretical_max(*next_state, maximum_timer) < max_geodes:
                 continue
             queue.append(next_state)
-            seen.add(next_state)
-            max_geodes = max(max_geodes, future_geodes(*next_state), next_state[2][3])
-    print(f"{bpid=} {max_geodes=}")
-    return bpid * max_geodes
+            max_geodes = max(
+                max_geodes, future_geodes(*next_state, maximum_timer), next_state[2][3]
+            )
+    return max_geodes
 
 
 def part_1(data):
-    bp1 = [(4, 0, 0, 0), (2, 0, 0, 0), (3, 14, 0, 0), (2, 0, 7, 0)]
-    bp2 = [(2, 0, 0, 0), (3, 0, 0, 0), (3, 8, 0, 0), (3, 0, 12, 0)]
     bps = []
 
     for line in data:
         bp, ore, clay, ob1, ob2, geo1, geo2 = parse(
-            "Blueprint {:d}: Each ore robot costs {:d} ore. Each clay robot costs {:d} ore. Each obsidian robot costs {:d} ore and {:d} clay. Each geode robot costs {:d} ore and {:d} obsidian.",
+            "Blueprint {:d}: Each ore robot costs {:d} ore. Each clay robot costs {:d} ore. "
+            "Each obsidian robot costs {:d} ore and {:d} clay. Each geode robot costs {:d} ore and {:d} obsidian.",
             line,
         )
         bps.append(
             (
                 bp,
-                [
+                (
                     (ore, 0, 0, 0),
                     (clay, 0, 0, 0),
                     (ob1, ob2, 0, 0),
                     (geo1, 0, geo2, 0),
-                ],
+                ),
             )
         )
-
     p = multiprocessing.Pool(10)
-    return sum(p.map(calculate, bps))
+    return sum(bp[0] * ans for bp, ans in zip(bps, p.map(functools.partial(calculate, 24), bps)))
 
 
 def part_2(data):
-    return 0
+    bps = []
+    for line in data:
+        bp, ore, clay, ob1, ob2, geo1, geo2 = parse(
+            "Blueprint {:d}: Each ore robot costs {:d} ore. Each clay robot costs {:d} ore. "
+            "Each obsidian robot costs {:d} ore and {:d} clay. Each geode robot costs {:d} ore and {:d} obsidian.",
+            line,
+        )
+        bps.append(
+            (
+                bp,
+                (
+                    (ore, 0, 0, 0),
+                    (clay, 0, 0, 0),
+                    (ob1, ob2, 0, 0),
+                    (geo1, 0, geo2, 0),
+                ),
+            )
+        )
+    bps = bps[:3]
+    p = multiprocessing.Pool(10)
+    return functools.reduce(operator.mul, p.map(functools.partial(calculate, 32), bps))
 
 
 def main():
