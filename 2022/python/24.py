@@ -1,6 +1,7 @@
 import dataclasses
 import heapq
 import itertools
+import math
 
 import aocd
 
@@ -18,7 +19,34 @@ class Blizzard:
         return Blizzard(x, y, self.dx, self.dy)
 
 
-def dijkstra_algorithm(occupied, start, bounds, target):
+def build_states(data):
+    blizzards = []
+    y_max = len(data) - 2
+    x_max = len(data[0]) - 2
+    mod = math.lcm(y_max, x_max)
+
+    for y, line in enumerate(data[1:-1]):
+        for x, char in enumerate(line[1:-1]):
+            match char:
+                case ">":
+                    blizzards.append(Blizzard(x, y, 1, 0))
+                case "<":
+                    blizzards.append(Blizzard(x, y, -1, 0))
+                case "^":
+                    blizzards.append(Blizzard(x, y, 0, -1))
+                case "v":
+                    blizzards.append(Blizzard(x, y, 0, 1))
+    states = []
+    for _ in range(0, mod):
+        states.append(frozenset((b.x, b.y) for b in blizzards))
+        blizzards = [b.move(x_max, y_max) for b in blizzards]
+    return states
+
+
+def dijkstra_algorithm(occupied, start, target):
+    x_max = max(x for x, y in itertools.chain.from_iterable(occupied))
+    y_max = max(y for x, y in itertools.chain.from_iterable(occupied))
+
     def neighbours(t, x, y):
         nt = (t + 1) % len(occupied)
         for (a, b) in [
@@ -29,13 +57,17 @@ def dijkstra_algorithm(occupied, start, bounds, target):
         ]:
             if a < 0 or b < 0:
                 continue
-            if a > bounds[0] or b > bounds[1]:
+            if a > x_max or b > y_max:
                 continue
             if (a, b) in occupied[nt]:
                 continue
             yield nt, a, b
         if (x, y) not in occupied[nt]:
             yield nt, x, y
+        if x == 0 and y == 0:
+            yield nt, 0, y - 1
+        if x == x_max and y == y_max:
+            yield nt, x, y_max + 1
 
     distances = {}
     seen = {}
@@ -52,7 +84,7 @@ def dijkstra_algorithm(occupied, start, bounds, target):
 
         distances[next_node] = distance
         if next_node[1:] == target:
-            break
+            return distances[next_node]
 
         for option in neighbours(*next_node):
             next_distance = distances[next_node] + 1
@@ -60,71 +92,22 @@ def dijkstra_algorithm(occupied, start, bounds, target):
                 seen[option] = next_distance
                 heapq.heappush(heap, (next_distance, next(counter), option))
 
-    return distances
-
 
 def part_1(data):
-    blizzards = []
-
-    y_max = len(data) - 2
-    x_max = len(data[0]) - 2
-    mod = y_max * x_max
-
-    for y, line in enumerate(data[1:-1]):
-        for x, char in enumerate(line[1:-1]):
-            match char:
-                case ">":
-                    blizzards.append(Blizzard(x, y, 1, 0))
-                case "<":
-                    blizzards.append(Blizzard(x, y, -1, 0))
-                case "^":
-                    blizzards.append(Blizzard(x, y, 0, -1))
-                case "v":
-                    blizzards.append(Blizzard(x, y, 0, 1))
-    states = []
-    for _ in range(0, mod):
-        states.append(frozenset((b.x, b.y) for b in blizzards))
-        blizzards = [b.move(x_max, y_max) for b in blizzards]
-
-    paths = dijkstra_algorithm(states, (0, 0, -1), (x_max - 1, y_max - 1), (x_max - 1, y_max - 1))
-    return min(v for (t, x, y), v in paths.items() if x == x_max - 1 and y == y_max - 1) + 1
+    states = build_states(data)
+    S = (0, 0, -1)
+    E = (len(data[0]) - 3, len(data) - 2)
+    return dijkstra_algorithm(states, S, E)
 
 
 def part_2(data):
-    blizzards = []
-    y_max = len(data) - 2
-    x_max = len(data[0]) - 2
-    mod = y_max * x_max
-    for y, line in enumerate(data[1:-1]):
-        for x, char in enumerate(line[1:-1]):
-            match char:
-                case ">":
-                    blizzards.append(Blizzard(x, y, 1, 0))
-                case "<":
-                    blizzards.append(Blizzard(x, y, -1, 0))
-                case "^":
-                    blizzards.append(Blizzard(x, y, 0, -1))
-                case "v":
-                    blizzards.append(Blizzard(x, y, 0, 1))
-    states = []
-    for _ in range(0, mod):
-        states.append(frozenset((b.x, b.y) for b in blizzards))
-        blizzards = [b.move(x_max, y_max) for b in blizzards]
-
-    paths = dijkstra_algorithm(states, (0, 0, -1), (x_max - 1, y_max - 1), (x_max - 1, y_max - 1))
-    v, t, x, y = min(
-        (v, t, x, y) for (t, x, y), v in paths.items() if x == x_max - 1 and y == y_max - 1
-    )
-    answer = v + 1
-    back_paths = dijkstra_algorithm(states, (t + 1, x, y + 1), (x_max - 1, y_max - 1), (0, 0))
-    v, t, x, y = min((v, t, x, y) for (t, x, y), v in back_paths.items() if x == 0 and y == 0)
-    answer += v + 1
-    paths = dijkstra_algorithm(
-        states, (t + 1, 0, -1), (x_max - 1, y_max - 1), (x_max - 1, y_max - 1)
-    )
-    return (
-        answer + min(v for (t, x, y), v in paths.items() if x == x_max - 1 and y == y_max - 1) + 1
-    )
+    states = build_states(data)
+    S = (0, -1)
+    E = (len(data[0]) - 3, len(data) - 2)
+    t = 0
+    for start, target in [(S, E), (E, S), (S, E)]:
+        t += dijkstra_algorithm(states, (t, *start), target)
+    return t
 
 
 def main():
