@@ -35,7 +35,6 @@ def part_1(data):
         if line == "":
             break
         for x, char in enumerate(line):
-
             if char == "#":
                 grid[(x, y)] = False
             elif char == ".":
@@ -46,12 +45,18 @@ def part_1(data):
     rotations = [x for x in re.split(r"\d+", path) if x]
 
     y_bounds = {
-        y: (min(a for a, b in grid.keys() if b == y), max(a for a, b in grid.keys() if b == y))
-        for y in range(0, max(b for a, b in grid.keys()) + 1)
+        y: (
+            min(a for a, b in grid.keys() if b == y),
+            max(a for a, b in grid.keys() if b == y),
+        )
+        for y in range(max(b for a, b in grid.keys()) + 1)
     }
     x_bounds = {
-        x: (min(b for a, b in grid.keys() if a == x), max(b for a, b in grid.keys() if a == x))
-        for x in range(0, max(a for a, b in grid.keys()) + 1)
+        x: (
+            min(b for a, b in grid.keys() if a == x),
+            max(b for a, b in grid.keys() if a == x),
+        )
+        for x in range(max(a for a, b in grid.keys()) + 1)
     }
     x, y = (y_bounds[0][0], 0)
     angle = 0
@@ -99,7 +104,6 @@ def part_2(data):
         if line == "":
             break
         for x, char in enumerate(line):
-
             if char == "#":
                 grid[(x, y)] = False
             elif char == ".":

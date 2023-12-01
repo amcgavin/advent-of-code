@@ -13,7 +13,7 @@ def types():
     yield from range(4)
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def calculate_best(time, robots, inventory, bp, maximum_timer):
     if time > maximum_timer:
         return
@@ -81,7 +81,6 @@ def calculate(maximum_timer, args):
     while queue:
         current_state = queue.pop(0)
         for next_state in calculate_best(*current_state, bp, maximum_timer):
-
             if theoretical_max(*next_state, maximum_timer) < max_geodes:
                 continue
             queue.append(next_state)

@@ -1,23 +1,24 @@
 import dataclasses
 import heapq
 import itertools
-import typing
 
 import aocd
 
 
 @dataclasses.dataclass
 class Node:
-    position: typing.Tuple[int, int]
+    position: tuple[int, int]
     weight: int
-    links: typing.Set["Node"] = dataclasses.field(default_factory=set)
+    links: set["Node"] = dataclasses.field(default_factory=set)
 
     def __hash__(self):
         return hash((self.position, self.weight))
 
 
 def dijkstra_algorithm(
-    nodes: typing.Dict[typing.Tuple[int, int], "Node"], start_node: Node, finish_node: Node
+    nodes: dict[tuple[int, int], "Node"],
+    start_node: Node,
+    finish_node: Node,
 ):
     distances = {}
     seen = {}

@@ -4,7 +4,6 @@ import heapq
 import itertools
 import math
 import multiprocessing
-import typing
 
 import aocd
 from parse import parse
@@ -26,7 +25,7 @@ class Valve:
         return self.flow > other.flow
 
 
-def dijkstra_algorithm(nodes: typing.Dict[str, Valve], start_node: Valve):
+def dijkstra_algorithm(nodes: dict[str, Valve], start_node: Valve):
     distances = {}
     seen = {}
 
@@ -125,7 +124,10 @@ def part_2(data):
         problems = []
         for group in chunk:
             other = flow_valves - set(group)
-            tasks = {"".join(sorted(v.name for v in group)), "".join(sorted(v.name for v in other))}
+            tasks = {
+                "".join(sorted(v.name for v in group)),
+                "".join(sorted(v.name for v in other)),
+            }
             if seen.intersection(tasks):
                 continue
             seen.update(tasks)

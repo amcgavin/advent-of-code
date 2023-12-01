@@ -15,7 +15,14 @@ def get_visible(cubes, limit):
 
     def neighbours(n):
         x, y, z = n
-        for (dx, dy, dz) in [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]:
+        for dx, dy, dz in [
+            (1, 0, 0),
+            (-1, 0, 0),
+            (0, 1, 0),
+            (0, -1, 0),
+            (0, 0, 1),
+            (0, 0, -1),
+        ]:
             if n in cubes:
                 continue
             new = (x + dx, y + dy, z + dz)
@@ -63,11 +70,18 @@ def draw(cubes, showing):
 def part_1(data):
     answer = 0
     cubes = set()
-    for (x, y, z) in (parse("{:d},{:d},{:d}", line) for line in data):
+    for x, y, z in (parse("{:d},{:d},{:d}", line) for line in data):
         cubes.add((x, y, z))
 
-    for (x, y, z) in cubes:
-        for (dx, dy, dz) in [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]:
+    for x, y, z in cubes:
+        for dx, dy, dz in [
+            (1, 0, 0),
+            (-1, 0, 0),
+            (0, 1, 0),
+            (0, -1, 0),
+            (0, 0, 1),
+            (0, 0, -1),
+        ]:
             if (x + dx, y + dy, z + dz) not in cubes:
                 answer += 1
 
@@ -76,14 +90,21 @@ def part_1(data):
 
 def part_2(data):
     cubes = set()
-    for (x, y, z) in (parse("{:d},{:d},{:d}", line) for line in data):
+    for x, y, z in (parse("{:d},{:d},{:d}", line) for line in data):
         cubes.add((x, y, z))
 
     visible = get_visible(cubes, max(itertools.chain.from_iterable(cubes)))
 
     answer = 0
-    for (x, y, z) in cubes:
-        for (dx, dy, dz) in [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]:
+    for x, y, z in cubes:
+        for dx, dy, dz in [
+            (1, 0, 0),
+            (-1, 0, 0),
+            (0, 1, 0),
+            (0, -1, 0),
+            (0, 0, 1),
+            (0, 0, -1),
+        ]:
             new = (x + dx, y + dy, z + dz)
             if new not in cubes and new in visible:
                 answer += 1

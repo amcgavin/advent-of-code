@@ -13,7 +13,7 @@ def filter_common(remaining, reverse=False, position=0):
     if len(remaining) == 1:
         return remaining[0]
     most_common = sorted(
-        Counter((r[position] for r in remaining)).most_common(),
+        Counter(r[position] for r in remaining).most_common(),
         key=lambda x: tuple(reversed(x)),
         reverse=reverse,
     )[0][0]

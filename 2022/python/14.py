@@ -15,7 +15,7 @@ def build_grid(data):
     for rock in coords:
         gen = iter(rock)
         (x1, y1) = next(gen)
-        for (x2, y2) in gen:
+        for x2, y2 in gen:
             # figure out if it's vertical or horizontal
             if x1 != x2:
                 for x in range(min(x1, x2), max(x1, x2) + 1):

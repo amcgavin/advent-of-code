@@ -52,7 +52,7 @@ def part_1(data):
     for _ in range(100):
         for octopus in grid.values():
             octopus.reset()
-        for (x, y) in grid.keys():
+        for x, y in grid.keys():
             flashes += increment(x, y, grid)
     return flashes
 
@@ -65,13 +65,12 @@ def part_2(data):
 
     count = 0
     while True:
-
         all_flash = True
         for octopus in grid.values():
             all_flash = octopus.reset() and all_flash
         if all_flash:
             return count
-        for (x, y) in grid.keys():
+        for x, y in grid.keys():
             increment(x, y, grid)
         count += 1
 

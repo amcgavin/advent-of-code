@@ -45,7 +45,7 @@ def part_2(data):
     max_x = max(p[0] for p in grid)
     max_y = max(p[1] for p in grid)
     table = [[" "] * (max_x + 1) for _ in range(max_y + 1)]
-    for (x, y) in grid:
+    for x, y in grid:
         table[y][x] = "█"
     for line in table:
         print("".join(line))

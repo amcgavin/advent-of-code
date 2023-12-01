@@ -44,7 +44,7 @@ def part_1(data):
                 grid.add((x, y))
     for i in range(10):
         proposed = defaultdict(list)
-        for (x, y) in grid:
+        for x, y in grid:
             if not grid.intersection(immediate_neighbours(x, y)):
                 continue
 
@@ -76,7 +76,7 @@ def part_2(data):
 
     for i in itertools.count():
         proposed = defaultdict(list)
-        for (x, y) in grid:
+        for x, y in grid:
             if not grid.intersection(immediate_neighbours(x, y)):
                 continue
 

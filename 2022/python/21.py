@@ -38,7 +38,12 @@ class Human:
         return functools.reduce(lambda x, f: f(x), self.operations, other)
 
 
-operators = {"+": operator.add, "-": operator.sub, "/": operator.truediv, "*": operator.mul}
+operators = {
+    "+": operator.add,
+    "-": operator.sub,
+    "/": operator.truediv,
+    "*": operator.mul,
+}
 
 
 def part_1(data):

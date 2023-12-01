@@ -54,7 +54,7 @@ def part_1(data):
         for x, col in enumerate(line):
             nodes[(x, y)] = Node((x, y), int(col))
 
-    for (x, y) in nodes.keys():
+    for x, y in nodes.keys():
         for point in [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]:
             other = nodes.get(point)
             if other is None:
@@ -86,7 +86,7 @@ def part_2(data):
                         limit(int(col) + y_increment + x_increment),
                     )
 
-    for (x, y) in nodes.keys():
+    for x, y in nodes.keys():
         for point in [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]:
             other = nodes.get(point)
             if other is None:

@@ -37,7 +37,7 @@ def build_states(data):
                 case "v":
                     blizzards.append(Blizzard(x, y, 0, 1))
     states = []
-    for _ in range(0, mod):
+    for _ in range(mod):
         states.append(frozenset((b.x, b.y) for b in blizzards))
         blizzards = [b.move(x_max, y_max) for b in blizzards]
     return states
@@ -49,7 +49,7 @@ def dijkstra_algorithm(occupied, start, target):
 
     def neighbours(t, x, y):
         nt = (t + 1) % len(occupied)
-        for (a, b) in [
+        for a, b in [
             (x + 1, y),
             (x - 1, y),
             (x, y - 1),

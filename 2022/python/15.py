@@ -15,7 +15,8 @@ class Range:
         if other.minimum > self.maximum + 1:
             raise ValueError(other.minimum - 1)
         return Range(
-            minimum=min(self.minimum, other.minimum), maximum=max(self.maximum, other.maximum)
+            minimum=min(self.minimum, other.minimum),
+            maximum=max(self.maximum, other.maximum),
         )
 
     def __gt__(self, other):
@@ -52,7 +53,7 @@ def part_2(data):
 
     for y in range(4000000):
         lists = []
-        for (sx, sy, d) in sensors:
+        for sx, sy, d in sensors:
             if sy - d <= y <= sy + d:
                 lists.append(Range(sx - (d - abs(sy - y)), sx + d - abs(sy - y)))
 
