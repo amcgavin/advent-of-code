@@ -31,26 +31,13 @@ def part_1(data):
 
     numbers = {}
     for y, line in enumerate(data):
-        num = ""
-        parts = []
-
-        def write_contents():
-            if num:
-                s = Symbol(num)
-                for part in parts:
-                    numbers[part] = s
+        for match in re.finditer(r"\d+", line):
+            s = Symbol(match.group())
+            for x1 in range(match.start(), match.end()):
+                numbers[(x1, y)] = s
 
         for x, c in enumerate(line):
             mapping[(x, y)] = c
-            if c.isdigit():
-                num += c
-                parts.append((x, y))
-            else:
-                write_contents()
-                num = ""
-                parts = []
-
-        write_contents()
 
     adjacent = set()
     for (x, y), c in mapping.items():
@@ -74,26 +61,13 @@ def part_2(data):
     mapping = {}
     numbers = {}
     for y, line in enumerate(data):
-        num = ""
-        parts = []
-
-        def write_contents():
-            if num:
-                s = Symbol(num)
-                for part in parts:
-                    numbers[part] = s
+        for match in re.finditer(r"\d+", line):
+            s = Symbol(match.group())
+            for x1 in range(match.start(), match.end()):
+                numbers[(x1, y)] = s
 
         for x, c in enumerate(line):
             mapping[(x, y)] = c
-            if c.isdigit():
-                num += c
-                parts.append((x, y))
-            else:
-                write_contents()
-                num = ""
-                parts = []
-
-        write_contents()
 
     for (x, y), c in mapping.items():
         if c == "*":

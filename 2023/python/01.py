@@ -1,5 +1,5 @@
 import re
-
+import itertools
 import aocd
 
 
@@ -9,51 +9,18 @@ def part_1(data):
 
 
 def part_2(data):
-    total = 0
-    mapper = {
-        "one": 1,
-        "two": 2,
-        "three": 3,
-        "four": 4,
-        "five": 5,
-        "six": 6,
-        "seven": 7,
-        "eight": 8,
-        "nine": 9,
-        "1": 1,
-        "2": 2,
-        "3": 3,
-        "4": 4,
-        "5": 5,
-        "6": 6,
-        "7": 7,
-        "8": 8,
-        "9": 9,
-    }
-    for n in data:
-        r = len(n)
-        l1 = None
-        for i in range(r):
-            if l1:
-                break
-            for j in range(r):
-                word = n[i : i + j]
-                if word in mapper:
-                    l1 = mapper[word]
-                    break
-        l2 = None
-        n2 = n[::-1]
-        for i in range(r):
-            if l2:
-                break
-            for j in range(r):
-                word = "".join(reversed(n2[i : i + j]))
-                if word in mapper:
-                    l2 = mapper[word]
-                    break
-        y = int(f"{l1}{l2}")
+    numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+    regexp = "|".join(itertools.chain(numbers, (str(x) for x in range(1, 10))))
+    reverse_regexp = "".join(reversed(regexp))
+    mapping = {key: str(value) for value, key in enumerate(numbers, start=1)}
+    mapping.update({"".join(reversed(k)): v for k, v in mapping.items()})
 
-        total += y
+    total = 0
+    for line in data:
+        l1 = next(re.finditer(regexp, line)).group()
+        l2 = next(re.finditer(reverse_regexp, line[::-1])).group()
+        total += int(f"{mapping.get(l1, l1)}{mapping.get(l2, l2)}")
+
     return total
 
 
