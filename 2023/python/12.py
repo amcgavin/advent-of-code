@@ -1,12 +1,11 @@
 import functools
 import itertools
-import multiprocessing
-import math
-import re
+
 
 import aocd
 
 
+@functools.cache
 def meets_criteria(partial, counts, remaining=True):
     g1 = tuple(len(list(g)) for k, g in itertools.groupby(partial.split("?")[0]) if k == "#")
     if not remaining:
@@ -48,49 +47,55 @@ def part_1(data):
     return m
 
 
-@functools.cache
-def fits_in(block, counts):
-    if counts == (0,):
-        return 0 if "#" in block else 1
+def solve(line, counts):
+    dp = [[] for _ in range(len(counts))]
+    for i, num in enumerate(counts):
+        for j, c in enumerate(line):
+            dp[i].append(0)
+            start = j - num + 1
+            if c == "." or start < 0:
+                continue
 
-    if all(x == "?" for x in block):
-        groups = len(counts)
-        empty = len(block) - (groups - 1) - sum(counts)
-        if empty < 0:
-            return 0
-        return math.comb(groups + empty, groups)
-    # now we have # in there
-    groups = [(k, len(list(g))) for k, g in itertools.groupby(block)]
-    first = block.index("#")
+            if "." in line[start : j + 1]:
+                continue
+            if j + 1 < len(line) and line[j + 1] == "#":
+                continue
+
+            if i == 0:
+                dp[i][j] = 1 if "#" not in line[:start] else 0
+                continue
+
+            total = 0
+            for end in range(start - 1):
+                if "#" not in line[end + 1 : start]:
+                    total += dp[i - 1][end]
+            dp[i][j] = total
+
+    total = 0
+    for pos in range(len(line) - 1, -1, -1):
+        if line[pos] == "#":
+            total += dp[len(counts) - 1][pos]
+            break
+        elif line[pos] == "?":
+            total += dp[len(counts) - 1][pos]
+
+    return total
 
 
 def part_2(data):
-    m = 0
+    total = 0
     for line in data:
         springs, counts = line.split(" ")
         counts = tuple(int(x) for x in counts.split(",")) * 5
-        springs = ("." + "?".join([springs] * 5) + ".").replace(".", "..")
-
-        print(f"{springs} {counts}")
-        progression = iter(enumerate(counts))
-
-        blocks = re.findall(r"\.([^.]+)\.", springs)
-
-
-sample = """???.### 1,1,3
-.??..??...?##. 1,1,3
-?#?#?#?#?#?#?#? 1,3,1,6
-????.#...#... 4,1,1
-????.######..#####. 1,6,5
-?###???????? 3,2,1"""
+        springs = "?".join([springs] * 5)
+        total += solve(springs, counts)
+    return total
 
 
 def main():
     data = [x for x in aocd.get_data(day=12, year=2023).splitlines()]
-    data = sample.splitlines()
     print(part_1(data))
     print(part_2(data))
-    # aocd.submit(str(part_2(data)), part='b', day=12, year=2023)
 
 
 if __name__ == "__main__":
