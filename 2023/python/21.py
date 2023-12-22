@@ -1,7 +1,6 @@
 import heapq
 import itertools
-import math
-from collections import defaultdict, deque, Counter
+
 import aocd
 
 
@@ -66,8 +65,7 @@ def part_1(data):
 
 def part_2(data):
     n = 26501365
-    # factors
-    # 5, 11, 55, 481843 2409215
+
     grid = {}
     start = None
     for y, line in enumerate(data):
@@ -79,35 +77,48 @@ def part_2(data):
     walls = set(grid.keys()) - set(d.keys())
     for x, y in walls:
         grid[(x, y)] = "#"
-    d = dijkstra_algorithm(grid, start, repeat=0, max_distance=n)
     max_x = max(x for x, y in grid.keys())
-    max_y = max(y for x, y in grid.keys())
-    t = n // (max_x + 1)  # 202300
-    c = Counter(d.values())
-    # cap at 7645, 67237, 187201, 367277, 607465, 907765, 1268177, 1688701, 2169337
-    # 42, 39
-    # 241, 229
-    # ((7645, 7577)
-    # (68136, 68068)
-
-    evens = sum(1 for x in d.values() if x == n or x % 2 == 0)
-    odds = sum(1 for x in d.values() if x == n or x % 2 == 1)
+    evens = sum(1 for v in d.values() if v % 2 == sum(start) % 2)
+    odds = sum(1 for v in d.values() if v % 2 != sum(start) % 2)
 
     total = 0
-    for i in range(n // (max_x + 1) + 1):
-        # gets us full squares.
-        m = evens if i % 2 == 0 else odds
-        total += max(i * 4, 1) * m
+    x = n - start[0]
+    x //= max_x + 1
+    total += x**2 * odds
+    total += (x - 1) ** 2 * evens
 
-    # now, find the distances we can travel from edges in n % max steps.
+    middle = dijkstra_algorithm(grid, start, repeat=0, max_distance=65, start_cost=0)
+    tl = dijkstra_algorithm(grid, (0, 0), repeat=0, max_distance=65, start_cost=0)
+    bl = dijkstra_algorithm(grid, (0, max_x), repeat=0, max_distance=65, start_cost=0)
+    tr = dijkstra_algorithm(grid, (max_x, 0), repeat=0, max_distance=65, start_cost=0)
+    br = dijkstra_algorithm(grid, (max_x, max_x), repeat=0, max_distance=65, start_cost=0)
 
-    for start in [(0, max_x / 2), (max_x / 2, 0), (max_x, max_x / 2), (max_x / 2, max_x)]:
-        d = dijkstra_algorithm(grid, start, repeat=0, max_distance=n % (max_x + 1), start_cost=0)
-        total += sum(1 for x in d.values() if x <= n % (max_x + 1) and x % 2 == 0)
+    me = sum(1 for x in middle.values() if x <= 65 and x % 2 == sum(start) % 2)
+    tle = sum(1 for v in tl.values() if v <= 65 and v % 2 == sum(start) % 2)
+    tlo = sum(1 for v in tl.values() if v <= 65 and v % 2 != sum(start) % 2)
+    ble = sum(1 for v in bl.values() if v <= 65 and v % 2 == sum(start) % 2)
+    blo = sum(1 for v in bl.values() if v <= 65 and v % 2 != sum(start) % 2)
+    tre = sum(1 for v in tr.values() if v <= 65 and v % 2 == sum(start) % 2)
+    tro = sum(1 for v in tr.values() if v <= 65 and v % 2 != sum(start) % 2)
+    bre = sum(1 for v in br.values() if v <= 65 and v % 2 == sum(start) % 2)
+    bro = sum(1 for v in br.values() if v <= 65 and v % 2 != sum(start) % 2)
 
-    # 622926932272509  x
-    # 622926932272207  ?
-    assert 622926904355205 < total < 622933090711756, total
+    # end pieces
+    tm = me + ble + bre
+    lm = me + tre + bre
+    rm = me + tle + ble
+    bm = me + tle + tre
+    total += tm + lm + rm + bm
+
+    # edge
+    tlb = me + tre + bre + ble
+    blb = me + tle + tre + bre
+    trb = me + tle + ble + bre
+    brb = me + tle + tre + ble
+    total += x * (tlb + blb + trb + brb)
+
+    # inverse edge
+    total += x * (tlo + blo + tro + bro)
     return total
 
 
