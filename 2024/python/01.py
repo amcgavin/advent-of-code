@@ -22,7 +22,6 @@ def part_2(data):
         l1, _, l2 = parse("{:d}{:s}{:d}", line)
         a1.append(int(l1))
         a2.append(int(l2))
-    a1 = sorted(a1)
     a2 = Counter(a2)
     return sum(l1 * a2.get(l1, 0) for l1 in a1)
 
