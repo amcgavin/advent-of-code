@@ -34,7 +34,8 @@ ignore = [
     "B905",
     "SIM105",
     "PERF203",  # remove this once all code is at least at Python 3.11
-    "E501"  # handled in formatter
+    "E501",  # handled in formatter
+    "ISC001" # handled in formatter
 ]
 
 line-length = 100
