@@ -1,15 +1,15 @@
 from collections import Counter
 import aocd
-from parse import parse
+import utils
 
 
 def part_1(data):
     a1 = []
     a2 = []
     for line in data:
-        l1, _, l2 = parse("{:d}{:s}{:d}", line)
-        a1.append(int(l1))
-        a2.append(int(l2))
+        l1, l2 = utils.ints(line)
+        a1.append(l1)
+        a2.append(l2)
     a1 = sorted(a1)
     a2 = sorted(a2)
     return sum(abs(l1 - l2) for l1, l2 in zip(a1, a2))
@@ -19,9 +19,9 @@ def part_2(data):
     a1 = []
     a2 = []
     for line in data:
-        l1, _, l2 = parse("{:d}{:s}{:d}", line)
-        a1.append(int(l1))
-        a2.append(int(l2))
+        l1, l2 = utils.ints(line)
+        a1.append(l1)
+        a2.append(l2)
     a2 = Counter(a2)
     return sum(l1 * a2.get(l1, 0) for l1 in a1)
 
