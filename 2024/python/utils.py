@@ -1,19 +1,25 @@
 import re
+from typing import Generator, Iterable, Sequence
+
+type Line = str
+type Input = list[Line]
+type Coord = tuple[int, int]
+type Grid = dict[Coord, str]
 
 
-def ints(line):
+def ints(line: Line) -> list[int]:
     return list(map(int, re.findall(r"-?\d+", line)))
 
 
-def floats(line):
+def floats(line: Line) -> list[float]:
     return list(map(float, re.findall(r"-?\d+(?:\.\d+)?", line)))
 
 
-def words(line):
+def words(line: Line) -> list[float]:
     return re.findall(r"[a-zA-Z]+", line)
 
 
-def as_grid(data):
+def as_grid(data: Input) -> Grid:
     grid = {}
     for y, line in enumerate(data):
         for x, c in enumerate(line):
@@ -21,7 +27,7 @@ def as_grid(data):
     return grid
 
 
-def as_table(data):
+def as_table(data: Input) -> Grid:
     grid = {}
     for y, line in enumerate(data):
         for x, c in enumerate(line.split()):
@@ -29,7 +35,7 @@ def as_table(data):
     return grid
 
 
-def immediate_neighbours(x, y):
+def immediate_neighbours(x: int, y: int) -> set[Coord]:
     return {
         (x + 1, y),
         (x - 1, y),
@@ -50,7 +56,7 @@ def cardinal_directions():
     return ["U", "L", "D", "R"]
 
 
-def straight_line(x, y, direction, length):
+def straight_line(x, y, direction, length) -> list[Coord]:
     if direction == "U":
         return [(x, y - i) for i in range(1, length + 1)]
     if direction == "D":
@@ -67,3 +73,16 @@ def straight_line(x, y, direction, length):
         return [(x + i, y + i) for i in range(1, length + 1)]
     if direction == "DL":
         return [(x - i, y + i) for i in range(1, length + 1)]
+
+
+def find_in_grid(
+    grid: Grid, patterns: Iterable[Sequence[Sequence[str]]]
+) -> Generator[tuple[int, Coord]]:
+    for x, y in grid.keys():
+        for p, pattern in enumerate(patterns):
+            if all(
+                (not pattern[j][i]) or grid.get((x + i, y + j)) == pattern[j][i]
+                for j in range(len(pattern))
+                for i in range(len(pattern[j]))
+            ):
+                yield p, (x, y)
