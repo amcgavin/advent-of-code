@@ -19,6 +19,15 @@ def words(line: Line) -> list[float]:
     return re.findall(r"[a-zA-Z]+", line)
 
 
+def partition_sections(data: Input) -> Generator[Input]:
+    s = 0
+    for i, line in enumerate(data):
+        if line == "":
+            yield data[s:i]
+            s = i + 1
+    yield data[s:]
+
+
 def as_grid(data: Input) -> Grid:
     grid = {}
     for y, line in enumerate(data):
