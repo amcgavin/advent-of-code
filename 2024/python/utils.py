@@ -1,3 +1,5 @@
+import heapq
+import itertools
 import re
 from typing import Generator, Iterable, Sequence
 
@@ -95,3 +97,29 @@ def find_in_grid(
                 for i in range(len(pattern[j]))
             ):
                 yield p, (x, y)
+
+
+def dijkstra_algorithm(grid: Grid, start_node: Coord):
+    distances = {}
+    seen = {}
+    counter = itertools.count()
+    heap = []
+
+    seen[start_node] = 0
+    heapq.heappush(heap, (0, next(counter), start_node))
+    while heap:
+        distance, _, next_node = heapq.heappop(heap)
+        if next_node in distances:
+            continue
+        distances[next_node] = distance
+        for option in immediate_neighbours(*next_node):
+            if option not in grid:
+                continue
+
+            next_distance = distances[next_node] + 1
+
+            if option not in distances and option not in seen or next_distance < seen[option]:
+                seen[option] = next_distance
+                heapq.heappush(heap, (next_distance, next(counter), option))
+
+    return distances
