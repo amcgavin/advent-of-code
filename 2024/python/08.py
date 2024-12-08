@@ -10,11 +10,10 @@ def part_1(data: utils.Input):
     nodes = defaultdict(list)
     antinodes = set()
     grid = dict()
-    for y, line in enumerate(data):
-        for x, c in enumerate(line):
-            grid[(x, y)] = c
-            if c != ".":
-                nodes[c].append((x, y))
+    for x, y, c in utils.as_grid(data):
+        grid[(x, y)] = c
+        if c != ".":
+            nodes[c].append((x, y))
 
     for freqs in nodes.values():
         for (x1, y1), (x2, y2) in itertools.combinations(freqs, 2):
@@ -33,11 +32,10 @@ def part_2(data: utils.Input):
     nodes = defaultdict(list)
     antinodes = set()
     grid = dict()
-    for y, line in enumerate(data):
-        for x, c in enumerate(line):
-            grid[(x, y)] = c
-            if c != ".":
-                nodes[c].append((x, y))
+    for x, y, c in utils.as_grid(data):
+        grid[(x, y)] = c
+        if c != ".":
+            nodes[c].append((x, y))
 
     for freqs in nodes.values():
         for (x1, y1), (x2, y2) in itertools.combinations(freqs, 2):

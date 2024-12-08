@@ -7,7 +7,8 @@ import itertools
 
 
 def part_1(data: utils.Input):
-    grid = utils.as_grid(data)
+    grid = {(x, y): c for x, y, c in utils.as_grid(data)}
+
     start = next(i for i, v in grid.items() if v == "^")
     seen = set()
     directions = itertools.cycle(["U", "R", "D", "L"])
@@ -33,7 +34,7 @@ def part_1(data: utils.Input):
 
 def part_2(data: utils.Input):
     result = 0
-    grid = utils.as_grid(data)
+    grid = {(x, y): c for x, y, c in utils.as_grid(data)}
     start = next(i for i, v in grid.items() if v == "^")
 
     for pos in grid.keys():

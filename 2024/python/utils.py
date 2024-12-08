@@ -31,11 +31,9 @@ def partition_sections(data: Input) -> Generator[Input]:
 
 
 def as_grid(data: Input) -> Grid:
-    grid = {}
     for y, line in enumerate(data):
         for x, c in enumerate(line):
-            grid[(x, y)] = c
-    return grid
+            yield x, y, c
 
 
 def as_table(data: Input) -> Grid:
