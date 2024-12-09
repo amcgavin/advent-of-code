@@ -30,10 +30,10 @@ def partition_sections(data: Input) -> Generator[Input]:
     yield data[s:]
 
 
-def as_grid(data: Input) -> Grid:
+def as_grid(data: Input) -> Generator[tuple[Coord, str]]:
     for y, line in enumerate(data):
         for x, c in enumerate(line):
-            yield x, y, c
+            yield (x, y), c
 
 
 def as_table(data: Input) -> Grid:
