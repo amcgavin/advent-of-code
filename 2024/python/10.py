@@ -8,54 +8,28 @@ def search(grid, start_node):
     seen = defaultdict(lambda: 0)
     heap = [start_node]
 
-    seen[start_node] = 0
     while heap:
         next_node = heap.pop()
         for option in utils.cardinal_neighbours(*next_node):
             if grid.get(option) != grid[next_node] + 1:
                 continue
-            seen[option] += 1
-            heap.append(option)
+
+            if grid[option] == 9:
+                seen[option] += 1
+            else:
+                heap.append(option)
 
     return seen
 
 
 def part_1(data: utils.Input):
-    grid = {}
-    zeroes = set()
-    nines = set()
-    for p, c in utils.as_grid(data):
-        c = int(c)
-        grid[p] = c
-        if c == 0:
-            zeroes.add(p)
-        if c == 9:
-            nines.add(p)
-
-    t = 0
-    for p in zeroes:
-        d = search(grid, p)
-        t += sum(1 for n in nines if n in d)
-    return t
+    grid = {p: int(c) for p, c in utils.as_grid(data)}
+    return sum(len(search(grid, p).keys()) for p, c in grid.items() if c == 0)
 
 
 def part_2(data: utils.Input):
-    grid = {}
-    zeroes = set()
-    nines = set()
-    for p, c in utils.as_grid(data):
-        c = int(c)
-        grid[p] = c
-        if c == 0:
-            zeroes.add(p)
-        if c == 9:
-            nines.add(p)
-
-    t = 0
-    for p in zeroes:
-        d = search(grid, p)
-        t += sum(d.get(n, 0) for n in nines)
-    return t
+    grid = {p: int(c) for p, c in utils.as_grid(data)}
+    return sum(sum(search(grid, p).values()) for p, c in grid.items() if c == 0)
 
 
 def main():
