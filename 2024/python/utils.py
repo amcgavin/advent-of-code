@@ -57,6 +57,15 @@ def immediate_neighbours(x: int, y: int) -> set[Coord]:
     }
 
 
+def cardinal_neighbours(x: int, y: int) -> set[Coord]:
+    return {
+        (x + 1, y),
+        (x - 1, y),
+        (x, y - 1),
+        (x, y + 1),
+    }
+
+
 def all_directions():
     return ["U", "D", "L", "R", "UL", "UR", "DL", "DR"]
 
