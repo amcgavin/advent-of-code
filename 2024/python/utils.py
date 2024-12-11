@@ -17,7 +17,7 @@ def floats(line: Line) -> list[float]:
     return list(map(float, re.findall(r"-?\d+(?:\.\d+)?", line)))
 
 
-def words(line: Line) -> list[float]:
+def words(line: Line) -> list[str]:
     return re.findall(r"[a-zA-Z]+", line)
 
 
