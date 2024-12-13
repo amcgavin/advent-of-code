@@ -1,3 +1,4 @@
+import dataclasses
 import heapq
 import itertools
 import re
@@ -7,6 +8,25 @@ type Line = str
 type Input = list[Line]
 type Coord = tuple[int, int]
 type Grid = dict[Coord, str]
+
+
+@dataclasses.dataclass
+class Point:
+    x: int
+    y: int
+
+    def __add__(self, other):
+        if isinstance(other, tuple):
+            other = Point(*other)
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        if isinstance(other, tuple):
+            other = Point(*other)
+        return Point(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, other):
+        return Point(self.x * other, self.y * other)
 
 
 def ints(line: Line) -> list[int]:
