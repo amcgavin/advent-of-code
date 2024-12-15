@@ -94,6 +94,17 @@ def cardinal_directions():
     return ["U", "L", "D", "R"]
 
 
+def directional_add(x, y, d):
+    if d == "L":
+        return (x - 1, y)
+    elif d == "R":
+        return (x + 1, y)
+    elif d == "U":
+        return (x, y - 1)
+    elif d == "D":
+        return (x, y + 1)
+
+
 def straight_line(x, y, direction, length) -> list[Coord]:
     if direction == "U":
         return [(x, y - i) for i in range(1, length + 1)]
