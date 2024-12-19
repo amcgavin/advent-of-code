@@ -137,7 +137,7 @@ def find_in_grid(
                 yield p, (x, y)
 
 
-def dijkstra_algorithm(grid: Grid, start_node: Coord):
+def dijkstra_algorithm(grid, start_node):
     distances = {}
     seen = {}
     counter = itertools.count()
