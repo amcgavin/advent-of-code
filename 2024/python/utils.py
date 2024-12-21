@@ -137,6 +137,10 @@ def find_in_grid(
                 yield p, (x, y)
 
 
+def manhattan_distance(p1: Point, p2: Point) -> int:
+    return sum(abs(a - b) for a, b in zip(p1, p2))
+
+
 def dijkstra_algorithm(grid, start_node):
     distances = {}
     seen = {}
