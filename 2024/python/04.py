@@ -4,7 +4,7 @@ import utils
 
 def part_1(data):
     total = 0
-    grid = {(x, y): c for x, y, c in utils.as_grid(data)}
+    grid = dict(utils.as_grid(data))
     for (x, y), start in grid.items():
         if start != "X":
             continue
@@ -19,7 +19,7 @@ def part_1(data):
 
 
 def part_2(data):
-    grid = {(x, y): c for x, y, c in utils.as_grid(data)}
+    grid = dict(utils.as_grid(data))
     return len(
         list(
             utils.find_in_grid(

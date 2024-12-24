@@ -14,7 +14,7 @@ def check(numbers):
 def part_1(data):
     c = 0
     for line in data:
-        numbers = [int(x) for x in re.findall("(\d+)", line)]
+        numbers = [int(x) for x in re.findall(r"(\d+)", line)]
         if check(numbers):
             c += 1
     return c
@@ -23,7 +23,7 @@ def part_1(data):
 def part_2(data):
     c = 0
     for line in data:
-        numbers = [int(x) for x in re.findall("(\d+)", line)]
+        numbers = [int(x) for x in re.findall(r"(\d+)", line)]
         if check(numbers):
             c += 1
         else:
