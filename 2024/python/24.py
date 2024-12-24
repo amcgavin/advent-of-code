@@ -9,32 +9,6 @@ import utils
 from parse import parse
 
 
-def part_1(data: utils.Input):
-    registers = {}
-    initial, instructions = utils.partition_sections(data)
-
-    for i in initial:
-        registers[i[:3]] = int(i[5:])
-    while instructions:
-        n = instructions.pop()
-        lhs, op, rhs, res = parse("{} {} {} -> {}", n)
-        if rhs not in registers:
-            instructions.insert(0, n)
-            continue
-        if lhs not in registers:
-            instructions.insert(0, n)
-            continue
-        if op == "AND":
-            registers[res] = registers[lhs] & registers[rhs]
-        elif op == "OR":
-            registers[res] = registers[lhs] | registers[rhs]
-        elif op == "XOR":
-            registers[res] = registers[lhs] ^ registers[rhs]
-    return int(
-        "".join(str(v) for k, v in sorted(registers.items(), reverse=True) if k[0] == "z"), 2
-    )
-
-
 @dataclasses.dataclass(eq=True, frozen=True)
 class Literal:
     label: str
@@ -103,13 +77,14 @@ class Op:
 
 def run_simulation(gates, swaps):
     instructions = [*gates]
+    highest = max(int(instruction[-2:]) for instruction in instructions if instruction[-3] == "z")
 
     for k, v in swaps.items():
         o = list(instructions[k])
         p = list(instructions[v])
-        xx = o[-3:]
+        x = o[-3:]
         o[-3:] = p[-3:]
-        p[-3:] = xx
+        p[-3:] = x
         instructions[k] = "".join(o)
         instructions[v] = "".join(p)
 
@@ -117,7 +92,7 @@ def run_simulation(gates, swaps):
     registers = {}
     dependencies = defaultdict(set)
 
-    for i in range(45):
+    for i in range(highest):
         registers[f"x{i:02d}"] = Literal(f"x{i:02d}")
         registers[f"y{i:02d}"] = Literal(f"y{i:02d}")
 
@@ -158,8 +133,18 @@ def adder(n):
     return (Literal(f"x{n:02d}") ^ Literal(f"y{n:02d}")) ^ carry_from(n - 1)
 
 
+def part_1(data: utils.Input):
+    initial, instructions = utils.partition_sections(data)
+    highest = max(int(instruction[-2:]) for instruction in instructions if instruction[-3] == "z")
+    values = dict(parse("{}: {:d}", line) for line in initial)
+    registers, _ = run_simulation(instructions, {})
+    bits = [registers[f"z{i:02d}"].compute(values) for i in range(highest + 1)]
+    return int("".join(map(str, reversed(bits))), 2)
+
+
 def part_2(data: utils.Input):
     initial, instructions = utils.partition_sections(data)
+    highest = max(int(instruction[-2:]) for instruction in instructions if instruction[-3] == "z")
     outs = {instruction[-3:]: i for i, instruction in enumerate(instructions)}
     r_outs = {v: k for k, v in outs.items()}
     locked = set()
@@ -168,7 +153,7 @@ def part_2(data: utils.Input):
 
     while len(permanent_swaps) < 4:
         registers, deps = run_simulation(instructions, permanent_swaps)
-        for i in range(45):
+        for i in range(highest):
             g = f"z{i:02d}"
             reg = registers[g]
             if reg != adder(i):
