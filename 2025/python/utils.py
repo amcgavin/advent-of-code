@@ -137,7 +137,7 @@ def find_in_grid(
                 yield p, (x, y)
 
 
-def manhattan_distance(p1: Point, p2: Point) -> int:
+def manhattan_distance(p1: tuple[int], p2: tuple[int]) -> int:
     return sum(abs(a - b) for a, b in zip(p1, p2))
 
 
